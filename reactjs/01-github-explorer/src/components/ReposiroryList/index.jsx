@@ -1,22 +1,34 @@
-import RepositoryItem from '../RepositoruItem'
+import {useEffect, useState} from 'react';
+import axios from 'axios';
 
-const repository = {
-  name: 'Movies',
-  description: 'Busque e veja os detalhes de seus filmes favoritos.',
-  link: 'https://github.com/EdersonDav/Movies'
-}
+import RepositoryItem from '../RepositoruItem';
+import './repositories.scss';
 
 const ReposiroryList = () =>{
+  const [repositories, setRepositories] = useState([]);
+
+  useEffect(()=>{
+    //const getRepositories = async () =>{
+    //  const repos = await axios.get('https://api.github.com/users/EdersonDav/repos');
+
+    //setRepositories(repos)
+    //}
+    //getRepositories();
+    fetch('https://api.github.com/users/EdersonDav/repos')
+    .then(response => response.json())
+    .then(data => setRepositories(data))
+  },[]);
+
   return(
-    <section>
+    <section className='repository-list'>
       <h1>Lista de repositórios</h1>
 
       <ul>
-        <RepositoryItem repository={repository}/>
-        <RepositoryItem repository={repository}/>
-        <RepositoryItem repository={repository}/>
-        <RepositoryItem repository={repository}/>
-        <RepositoryItem repository={repository}/>
+        {repositories.length && (
+          repositories.map((repo) =>(
+            <RepositoryItem key={repo.id} repository={repo}/>
+          ))
+        )}
       </ul>
     </section>
   )
