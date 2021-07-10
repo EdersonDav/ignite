@@ -19,10 +19,8 @@ export default async (req: NextApiRequest, resp: NextApiResponse) => {
 
   if (req.method === 'POST') {
     const { priceId } = req.body;
-    console.log(priceId);
 
     const session = await getSession({ req });
-
 
     const user = await fauna.query<User>(
       q.Get(
@@ -72,7 +70,7 @@ export default async (req: NextApiRequest, resp: NextApiResponse) => {
 
   } else {
     resp.setHeader('Allow', 'POST');
-    return resp.status(405).end('Method not allowed')
+    resp.status(405).end('Method not allowed')
   }
 
 }
