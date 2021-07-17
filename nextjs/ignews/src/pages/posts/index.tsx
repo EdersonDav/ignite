@@ -3,8 +3,20 @@ import Head from 'next/head';
 import styles from './styles.module.scss';
 import { getPrismicClient } from '../../services/prismic';
 import Prismic from '@prismicio/client';
+import { RichText } from 'prismic-dom';
 
-const Posts = () => {
+type Post = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  updatedAt: string;
+};
+
+interface PostsProps {
+  posts: Post[];
+}
+
+const Posts = ({ posts }: PostsProps) => {
   return (
     <>
       <Head>
@@ -12,36 +24,13 @@ const Posts = () => {
       </Head>
       <main className={styles.container}>
         <div className={styles.posts}>
-          <a href="#">
-            <time>12 de março de 2021</time>
-            <strong>Post 01</strong>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit
-              eos illum ab eum suscipit, at inventore vel cumque? Nostrum ad
-              earum porro molestiae aliquid tenetur culpa quibusdam consequatur
-              dicta et!
-            </p>
-          </a>
-          <a href="#">
-            <time>12 de março de 2021</time>
-            <strong>Post 01</strong>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit
-              eos illum ab eum suscipit, at inventore vel cumque? Nostrum ad
-              earum porro molestiae aliquid tenetur culpa quibusdam consequatur
-              dicta et!
-            </p>
-          </a>
-          <a href="#">
-            <time>12 de março de 2021</time>
-            <strong>Post 01</strong>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit
-              eos illum ab eum suscipit, at inventore vel cumque? Nostrum ad
-              earum porro molestiae aliquid tenetur culpa quibusdam consequatur
-              dicta et!
-            </p>
-          </a>
+          {posts.map(post => (
+            <a href="#" key={post.slug}>
+              <time>{post.updatedAt}</time>
+              <strong>{post.title}</strong>
+              <p>{post.excerpt}</p>
+            </a>
+          ))}
         </div>
       </main>
     </>
@@ -60,9 +49,26 @@ export const getStaticProps: GetStaticProps = async () => {
       pageSize: 100,
     },
   );
-  console.log(response);
+
+  const posts = response.results.map(post => {
+    return {
+      slug: post.uid,
+      title: RichText.asText(post.data.title),
+      excerpt:
+        post.data.content.find(constent => constent.type === 'paragraph')
+          ?.text ?? '',
+      updatedAt: new Date(post.last_publication_date).toLocaleDateString(
+        'pt-BR',
+        {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+        },
+      ),
+    };
+  });
 
   return {
-    props: {},
+    props: { posts },
   };
 };
